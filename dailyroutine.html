@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Routine Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .day {
+      background-color: #fff;
+      margin: 10px auto;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 500px;
+    }
+    .date {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .completed-text {
+      margin-left: 10px;
+      color: green;
+      font-size: 0.9em;
+    }
+    .container {
+      height: 90vh;
+      overflow-y: scroll;
+    }
+  </style>
+</head>
+<body>
+  <h1>Daily Routine Tracker</h1>
+  <div class="container">
+    <div id="routineList"></div>
+  </div>
+
+  <script>
+    const routineNames = [
+      "Wake up and sleep early","Watch course videos", "Practice coding", 
+      "Play games online/offline", "Read books", "Avoid Social Media"
+    ];
+
+    const routineList = document.getElementById("routineList");
+    const startDate = new Date("2025-07-11");
+    const endDate = new Date("2025-12-31");
+
+    // Load saved data from localStorage
+    const savedData = JSON.parse(localStorage.getItem("dailyRoutineStatus")) || {};
+
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split("T")[0];
+
+      const dayDiv = document.createElement("div");
+      dayDiv.className = "day";
+
+      const dateLabel = document.createElement("div");
+      dateLabel.className = "date";
+      dateLabel.textContent = dateStr;
+      dayDiv.appendChild(dateLabel);
+
+      routineNames.forEach((name, i) => {
+        const label = document.createElement("label");
+
+        const left = document.createElement("span");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = `${dateStr}-routine-${i}`;
+
+        // Check if previously saved
+        if (savedData[checkbox.id]) {
+          checkbox.checked = true;
+        }
+
+        left.appendChild(checkbox);
+        left.append(` ${name}`);
+
+        const completedText = document.createElement("span");
+        completedText.className = "completed-text";
+        completedText.textContent = checkbox.checked ? "✅ Completed" : "";
+
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            completedText.textContent = "✅ Completed";
+            savedData[checkbox.id] = true;
+          } else {
+            completedText.textContent = "";
+            delete savedData[checkbox.id];
+          }
+          localStorage.setItem("dailyRoutineStatus", JSON.stringify(savedData));
+        });
+
+        label.appendChild(left);
+        label.appendChild(completedText);
+        dayDiv.appendChild(label);
+      });
+
+      routineList.appendChild(dayDiv);
+    }
+  </script>
+</body>
+</html>
